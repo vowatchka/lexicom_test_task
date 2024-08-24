@@ -7,11 +7,11 @@ services:
       args:
         ENVIRONMENT: dev
     command: [
-        "gunicorn",
+        "uvicorn",
         "address_book.main:app",
-        "-c", "gunicorn.conf.py",
+        "--host", "0.0.0.0",
+        "--port", "5000",
         "--reload",
-        "-k", "uvicorn.workers.UvicornWorker"
     ]
     ports:
       - "5001:5000"
@@ -19,6 +19,7 @@ services:
       REDIS_URL: "redis://redis:6379"
     volumes:
       - ./address_book:/app/address_book
+      - ./tests:/app/tests
     restart: always
     depends_on:
       - redis
