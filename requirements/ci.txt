@@ -1,0 +1,4 @@
+-r prod.txt
+isort~=5.12
+pytest~=7.3
+ruff~=0.6
