@@ -1,0 +1,21 @@
+root = true
+
+[*]
+end_of_line = crlf
+insert_final_newline = true
+
+# Set default charset
+[*.*]
+charset = utf-8
+
+# 4 space indentation
+[*.{py,js}]
+indent_style = space
+indent_size = 4
+
+[*.{css,html,json,xml,yml,yaml}]
+indent_style = space
+indent_size = 2
+
+[*.sh]
+end_of_line = lf

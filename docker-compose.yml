@@ -1,0 +1,33 @@
+version: "3.8"
+
+services:
+  app:
+    build:
+      context: .
+      args:
+        ENVIRONMENT: dev
+    command: [
+        "gunicorn",
+        "address_book.main:app",
+        "-c", "gunicorn.conf.py",
+        "--reload",
+        "-k", "uvicorn.workers.UvicornWorker"
+    ]
+    ports:
+      - "5001:5000"
+    environment:
+      REDIS_URL: "redis://redis:6379"
+    volumes:
+      - ./address_book:/app/address_book
+    restart: always
+    depends_on:
+      - redis
+
+  redis:
+    image: redis:7.4.0
+    ports:
+      - "6380:6379"
+    environment:
+      REDIS_PASSWORD: redis
+      REDIS_PORT: 6379
+    restart: always
