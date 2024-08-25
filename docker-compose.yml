@@ -32,3 +32,18 @@ services:
       REDIS_PASSWORD: redis
       REDIS_PORT: 6379
     restart: always
+
+  db:
+    image: postgres:15.2-alpine
+    environment:
+      POSTGRES_DB: lexicom
+      POSTGRES_USER: lexicom
+      POSTGRES_PASSWORD: lexicom
+    volumes:
+      - ./sql/full_names_dump.sql:/docker-entrypoint-initdb.d/full_names_dump.sql
+      - ./sql/short_names_dump.sql:/docker-entrypoint-initdb.d/short_names_dump.sql
+      - ./sql/example1.sql:/sql/example1.sql
+      - ./sql/example2.sql:/sql/example2.sql
+      - ./sql/example3.sql:/sql/example3.sql
+      - ./sql/test.sql:/sql/test.sql
+    restart: always
