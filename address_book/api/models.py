@@ -1,4 +1,4 @@
-from pydantic import BaseModel
+from pydantic import BaseModel, Field
 
 
 class ErrorModel(BaseModel):
@@ -13,3 +13,7 @@ class PersonModel(BaseModel):
 class AddressModel(BaseModel):
     person: PersonModel
     address: str
+
+
+class AddressModelOut(AddressModel):
+    phone: str = Field(..., pattern=r"^9\d+{9}$")

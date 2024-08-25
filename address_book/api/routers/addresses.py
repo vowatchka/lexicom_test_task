@@ -1,16 +1,12 @@
-import os
 from typing import Annotated
 
 from fastapi import APIRouter, Depends, Path, Query
-from redis import asyncio as redis
 
-from .. import models, service
+from ... import redis_address_book
+from .. import address_book as addr_book
+from .. import models
 
 addresses_router = APIRouter(prefix="/addresses", tags=["Addresses"])
-
-
-async def redis_address_book():
-    yield service.RedisAddressBook(redis.from_url(os.getenv("REDIS_URL")))
 
 
 PhoneQuery = Annotated[
@@ -29,7 +25,7 @@ PhonePath = Annotated[
         description="Номер телефона",
     ),
 ]
-AddressBook = Annotated[service.RedisAddressBook, Depends(redis_address_book)]
+AddressBook = Annotated[addr_book.AddressBook, Depends(redis_address_book.redis_address_book)]
 
 
 @addresses_router.get(
@@ -38,9 +34,8 @@ AddressBook = Annotated[service.RedisAddressBook, Depends(redis_address_book)]
     description="Поиск адресов, чьи номера телефонов совпадают с указанным",
     status_code=200,
 )
-async def search_addresses(phone: PhoneQuery, address_book: AddressBook) -> list[models.AddressModel]:
-    addresses = await address_book.search(f"{phone}*")
-    return [models.AddressModel.model_validate(addr.model_dump()) for addr in addresses]
+async def search_addresses(phone: PhoneQuery, address_book: AddressBook) -> list[models.AddressModelOut]:
+    return await address_book.search(f"{phone}*")
 
 
 @addresses_router.post(
@@ -54,7 +49,7 @@ async def search_addresses(phone: PhoneQuery, address_book: AddressBook) -> list
     },
 )
 async def add_address(phone: PhonePath, body: models.AddressModel, address_book: AddressBook) -> models.AddressModel:
-    await address_book.add(phone, service.Address.model_validate(body.model_dump()))
+    await address_book.add(phone, body)
     return body
 
 
@@ -69,5 +64,5 @@ async def add_address(phone: PhonePath, body: models.AddressModel, address_book:
     },
 )
 async def change_address(phone: PhonePath, body: models.AddressModel, address_book: AddressBook) -> models.AddressModel:
-    await address_book.change(phone, service.Address.model_validate(body.model_dump()))
+    await address_book.change(phone, body)
     return body
