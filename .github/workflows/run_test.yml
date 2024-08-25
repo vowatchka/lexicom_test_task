@@ -1,0 +1,31 @@
+name: Run tests
+
+on: [push]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        python-version: ["3.9"]
+
+    steps:
+      - uses: actions/checkout@v3
+
+      - uses: actions/setup-python@v4
+        with:
+          python-version: ${{ matrix.python-version }}
+
+      - name: Install redis
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y redis
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip setuptools wheel
+          python -m pip install -r requirements/ci.txt
+
+      - name: Test with pytest
+        run: |
+          python -m pytest -v --cov=address_book --no-cov-on-fail --cov-report=term-missing:skip-covered tests/
