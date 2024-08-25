@@ -6,8 +6,8 @@ from _pytest.fixtures import FixtureRequest
 from pytest_redis.config import get_config
 from redis import asyncio as redis
 
-from address_book import routers, service
-from address_book.api import create_app
+from address_book import redis_address_book
+from address_book.api.api import create_app
 
 
 @pytest.fixture(scope="session", autouse=True)
@@ -46,15 +46,15 @@ async def redisdb(
 
 
 @pytest.fixture
-async def redis_address_book(redisdb: redis.Redis):
-    yield service.RedisAddressBook(redisdb)
+async def redis_address_book_depend(redisdb: redis.Redis):
+    yield redis_address_book.RedisAddressBook(redisdb)
 
 
 @pytest.fixture
-def app(redis_address_book):
+def app(redis_address_book_depend):
     _app = create_app()
 
-    _app.dependency_overrides[routers.addresses.redis_address_book] = lambda: redis_address_book
+    _app.dependency_overrides[redis_address_book.redis_address_book] = lambda: redis_address_book_depend
 
     yield _app
 

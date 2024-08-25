@@ -1,6 +1,6 @@
 from fastapi import FastAPI
 
-from . import handlers, service
+from . import address_book, handlers
 from .routers import api_router
 
 
@@ -19,8 +19,8 @@ def create_app():
             "identifier": "MIT",
         },
         exception_handlers={
-            service.AddressAlreadyExistsError: handlers.common_handler(409),
-            service.AddressNotFoundError: handlers.common_handler(404),
+            address_book.AddressAlreadyExistsError: handlers.common_handler(409),
+            address_book.AddressNotFoundError: handlers.common_handler(404),
         },
     )
 
