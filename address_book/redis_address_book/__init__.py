@@ -30,7 +30,10 @@ class RedisAddressBook(address_book.AddressBook):
         return [addr for addr in sorted(addresses, key=lambda x: x.phone)]
 
     async def get(self, phone: str) -> Optional[models.AddressModel]:
-        return await self._storage.get(phone)
+        stored_address = await self._storage.get(phone)
+        if not stored_address:
+            return None
+        return models.AddressModel.model_validate(json.loads(stored_address))
 
     async def add(self, phone: str, address: models.AddressModel):
         if await self._storage.exists(phone):

@@ -94,16 +94,17 @@ class TestApi:
         assert len(response.json()) == len(addresses)
         assert response.json() == [addr.model_dump() for addr in addresses]
 
-    async def test_add_address_ok(self, client: httpx.AsyncClient):
+    async def test_add_address_ok(
+        self, client: httpx.AsyncClient, redis_address_book_depend: redis_address_book.RedisAddressBook
+    ):
         """Проверка, что адрес добавляется успешно."""
         response = await client.post(f"{self.addresses_url}/{self.phone}", json=self.address)
         assert response.status_code == 201
         assert response.json() == self.address
 
         # проверяем адрес
-        response = await client.get(f"{self.addresses_url}?phone={self.phone}")
-        assert response.status_code == 200
-        assert response.json() == [{**self.address, "phone": self.phone}]
+        address = await redis_address_book_depend.get(self.phone)
+        assert address == models.AddressModel.model_validate(self.address)
 
     async def test_add_when_address_already_exists(
         self, client: httpx.AsyncClient, redis_address_book_depend: redis_address_book.RedisAddressBook
@@ -152,9 +153,8 @@ class TestApi:
         assert response.json() == new_address
 
         # проверяем адрес
-        response = await client.get(f"{self.addresses_url}?phone={self.phone}")
-        assert response.status_code == 200
-        assert response.json() == [{**new_address, "phone": self.phone}]
+        address = await redis_address_book_depend.get(self.phone)
+        assert address == models.AddressModel.model_validate(new_address)
 
     async def test_change_when_address_not_found(self, client: httpx.AsyncClient):
         """Проверка, что адрес не изменяется, когда такого адреса нет."""

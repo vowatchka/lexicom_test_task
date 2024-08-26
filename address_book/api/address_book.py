@@ -19,6 +19,7 @@ class AddressNotFoundError(Exception):
 class AddressBook(abc.ABC):
     """Адресная книга."""
 
+    @abc.abstractmethod
     async def search(self, phone_pattern: str) -> list[models.AddressModelOut]:
         """
         Поиск адресов.
@@ -27,6 +28,7 @@ class AddressBook(abc.ABC):
         """
         pass
 
+    @abc.abstractmethod
     async def get(self, phone: str) -> Optional[models.AddressModel]:
         """
         Получить адрес по номеру телефона.
@@ -36,6 +38,7 @@ class AddressBook(abc.ABC):
         """
         pass
 
+    @abc.abstractmethod
     async def add(self, phone: str, address: models.AddressModel):
         """
         Добавить адрес.
@@ -47,6 +50,7 @@ class AddressBook(abc.ABC):
         """
         pass
 
+    @abc.abstractmethod
     async def change(self, phone: str, new_address: models.AddressModel):
         """
         Изменить адрес.
